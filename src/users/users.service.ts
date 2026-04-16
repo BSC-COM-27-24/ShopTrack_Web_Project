@@ -68,4 +68,12 @@ export class UsersService {
     findUserbyRole(role: 'Admin' | 'Attendant'): User[] {
         return this.users.filter(user => user.role === role);
     }
+
+    clearAllData() {
+        this.users = [];
+        return { message: 'All users have been cleared. You can now create a new admin.' };
+    }
+
+
+
 }
