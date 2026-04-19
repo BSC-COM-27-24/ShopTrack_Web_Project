@@ -6,6 +6,8 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/entities/user.entity';
+import { ProductsModule } from './products/products.module';
+import { ProdctsService } from './prodcts/prodcts.service';
 
 @Module({
   imports: [
@@ -28,10 +30,10 @@ import { User } from './users/entities/user.entity';
         logging: true
       })
     }),
-    AuthModule, UsersModule
+    AuthModule, UsersModule, ProductsModule
   ],
 
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ProdctsService],
 })
 export class AppModule { }
