@@ -71,9 +71,10 @@ export class UsersController {
     @HttpCode(HttpStatus.OK)
     async delete(@Param('id', ParseIntPipe) id: number) {
         const result = await this.usersService.deleteUser(id);
-        return {
-            status: 'success',
-            message: result
+      return {
+     status: 'success',
+        message: result  
         };
     }
+
 }
