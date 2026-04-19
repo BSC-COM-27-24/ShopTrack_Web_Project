@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';   // ← Use * as bcrypt (not default import)
+import { CreateUserDto } from './dto/create-user.dto';
 
 export interface User {
     id: number;
@@ -12,6 +13,16 @@ export interface User {
 
 @Injectable()
 export class UsersService {
+    deleteUser(id: number) {
+        throw new Error('Method not implemented.');
+    }
+    updateUser: any;
+    findById(id: number) {
+        throw new Error('Method not implemented.');
+    }
+    findAll() {
+        throw new Error('Method not implemented.');
+    }
     private users: User[] = [];
 
     //creating a user
