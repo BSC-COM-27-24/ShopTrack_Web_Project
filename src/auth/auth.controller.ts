@@ -1,6 +1,8 @@
-import { Controller, Post, Body, Delete, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, Body, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { loginDto } from './dtos/login.dto';
+import { createAdminDto } from './dtos/create-admin.dto';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -9,16 +11,24 @@ export class AuthController {
         private readonly usersService: UsersService,
     ) { }
 
+    //STATUS FUNCTION
+
+    @Get('status')
+
+    async status() {
+        return await this.authService.status();
+    }
+
     //SETUP FUNCTION
     @Post('setup')
-    async setup(@Body() body: any) {
-        return await this.authService.setup(body);
+    async setup(@Body() createAdminDto: createAdminDto) {
+        return await this.authService.setup(createAdminDto);
     }
 
     //LOGIN FUNCTION
     @Post('login')
-    async login(@Body() body: any) {
-        return await this.authService.login(body);
+    async login(@Body() loginDto: loginDto) {
+        return await this.authService.login(loginDto);
     }
 
     //TEMPORARY DATA CLEAR WHILE THE DATABASE IS BEING WORKED ON
@@ -30,8 +40,9 @@ export class AuthController {
     //LOGOUT FUNCTION
 
     @Post('logout')
-
     async logout() {
         return this.authService.logout();
     }
+
+
 }
