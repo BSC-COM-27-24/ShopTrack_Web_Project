@@ -1,31 +1,4 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-<<<<<<< HEAD
-import * as bcrypt from 'bcryptjs';   // ← Use * as bcrypt (not default import)
-import { CreateUserDto } from './dto/create-user.dto';
-
-export interface User {
-    id: number;
-    name: string;
-    username: string;
-    password: string;
-    email: string;
-    role: 'Admin' | 'Attendant';
-}
-
-@Injectable()
-export class UsersService {
-    deleteUser(id: number) {
-        throw new Error('Method not implemented.');
-    }
-    updateUser: any;
-    findById(id: number) {
-        throw new Error('Method not implemented.');
-    }
-    findAll() {
-        throw new Error('Method not implemented.');
-    }
-    private users: User[] = [];
-=======
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -33,7 +6,6 @@ import * as bcrypt from 'bcryptjs'; // ← Use * as bcrypt (not default import)
 
 @Injectable()
 export class UsersService {
->>>>>>> 85fbd7a0acf1c70ea0ac1ba5499f2336688f21a3
 
   constructor(
     @InjectRepository(User)
