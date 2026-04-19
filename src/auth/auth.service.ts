@@ -1,6 +1,12 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { loginDto } from './dtos/login.dto';
+import { createAdminDto } from './dtos/create-admin.dto';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -11,24 +17,40 @@ export class AuthService {
   ) { }
 
 
+  //ACCOUNT / ADMIN EXTSISTENCE CHECK
+
+  async status() {
+    const admins = await this.usersService.findUserbyRole('Admin');
+    const setupCompleted = admins.length > 0;
+
+    return {
+      setupCompleted: setupCompleted,
+      message: setupCompleted
+        ? 'Admin account already exists. You can now login.'
+        : 'No admin account found. Please run the setup endpoint first.',
+      adminCount: admins.length
+    };
+  }
   //FIRST TIME SETUP
 
-  async setup(body: { name: string; username: string; password: string; email: string }) {
-    if (!body.name || !body.username || !body.email || !body.password) {
-      throw new BadRequestException('All fields are required: name, username, email, password');
+  async setup(createAdminDto: createAdminDto) {
+    if (!createAdminDto.name || !createAdminDto.username || !createAdminDto.email || !createAdminDto.password) {
+      throw new BadRequestException(
+        'All fields are required: name, username, email, password',
+      );
     }
 
-    const adminExists = this.usersService.findUserbyRole('Admin');
+    const adminExists = await this.usersService.findUserbyRole('Admin');
     if (adminExists.length > 0) {
       throw new BadRequestException('Admin already exists');
     }
 
     const user = await this.usersService.createUser(
-      body.name,
-      body.username,
-      body.password,
-      body.email,
-      'Admin'
+      createAdminDto.name,
+      createAdminDto.username,
+      createAdminDto.password,
+      createAdminDto.email,
+      'Admin',
     );
 
     return {
@@ -38,24 +60,24 @@ export class AuthService {
         name: user.name,
         username: user.username,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     };
   }
 
   //LOGIN FUNCTION
-  async login(body: any) {
-    if (!body.username || !body.password) {
+  async login(loginDto: loginDto) {
+    if (!loginDto.username || !loginDto.password) {
       throw new BadRequestException('Username and password are required');
     }
 
-    const user = this.usersService.findUserbyUsername(body.username);
+    const user = await this.usersService.findUserbyUsername(loginDto.username);
 
     if (!user) {
       throw new UnauthorizedException('Invalid username or password');
     }
 
-    const isPasswordValid = await bcrypt.compare(body.password, user.password);
+    const isPasswordValid = await bcrypt.compare(loginDto.password, user.password);
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid username or password');
@@ -77,15 +99,14 @@ export class AuthService {
         name: user.name,
         username: user.username,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     };
   }
-
 
   //LOGOUT FUNCTION
 
   async logout() {
-    return ('Logout successfull')
+    return 'Logout successfull';
   }
 }
