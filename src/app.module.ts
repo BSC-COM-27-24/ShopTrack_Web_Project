@@ -24,7 +24,7 @@ import { User } from './users/entities/user.entity';
         password: config.get('DB_PASSWORD'),
         serviceName: config.get('DB_SERVICE_NAME'),
         entities: [User],
-        synchronize: config.get('DB_SYNCHRONIZE') === true,
+        synchronize: config.get('DB_SYNCHRONIZE') === 'true',
         logging: true
       })
     }),

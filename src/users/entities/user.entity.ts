@@ -1,22 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('users')
-
 export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ length: 225 })
     name: string;
 
-    @Column({ unique: true })
+    @Column({ length: 225, unique: true })
     username: string;
 
-
-    @Column({ unique: true })
+    @Column({ length: 225, unique: true })
     email: string;
 
-    @Column()
+    @Column({ length: 225 })
     password: string;
 
     @Column({
@@ -26,6 +24,9 @@ export class User {
     })
     role: 'Admin' | 'Attendant';
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: 'timestamp' })
     createdAt: Date;
+
+    @UpdateDateColumn({ type: 'timestamp' })
+    updatedAt: Date;
 }

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Delete } from '@nestjs/common';
+import { Controller, Post, Get, Body, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { loginDto } from './dtos/login.dto';
@@ -13,7 +13,7 @@ export class AuthController {
 
     //STATUS FUNCTION
 
-    @Post('status')
+    @Get('status')
 
     async status() {
         return await this.authService.status();
