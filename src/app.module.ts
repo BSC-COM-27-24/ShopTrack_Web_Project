@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ProductsModule } from './products/products.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { RestocksModule } from './restocks/restocks.module'; // ✅ IMPORTANT
 
 @Module({
   imports: [
@@ -21,10 +24,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         username: config.get('DB_USERNAME'),
         password: config.get('DB_PASSWORD'),
         serviceName: config.get('DB_SERVICE_NAME'),
-
-        autoLoadEntities: true,
-
         synchronize: config.get('DB_SYNCHRONIZE') === 'true',
+        autoLoadEntities: true,
         logging: true,
       }),
     }),
@@ -32,7 +33,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     AuthModule,
     UsersModule,
     ProductsModule,
+    RestocksModule, // ✅ THIS FIXES YOUR ISSUE
   ],
+
   controllers: [AppController],
   providers: [AppService],
 })
