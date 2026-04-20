@@ -3,10 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { ProductsModule } from './products/products/products.module';
+import { ProductsModule } from './products/products.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
@@ -22,19 +21,19 @@ import { User } from './users/entities/user.entity';
         username: config.get('DB_USERNAME'),
         password: config.get('DB_PASSWORD'),
         serviceName: config.get('DB_SERVICE_NAME'),
-        entities: [User],
+
+        autoLoadEntities: true,
+
         synchronize: config.get('DB_SYNCHRONIZE') === 'true',
         logging: true,
-        autoLoadEntities: true,
-      })
+      }),
     }),
 
     AuthModule,
     UsersModule,
-    ProductsModule   // ← Correctly imported
+    ProductsModule,
   ],
-
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

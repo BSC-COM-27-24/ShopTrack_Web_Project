@@ -1,31 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Restock } from '../../restocks/entities/restock.entity';
 
-@Entity("products")
-export class product {
-    @PrimaryGeneratedColumn()
-    id?: number;
+@Entity()
+export class Product {
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @Column({ length: 226 })
-    name?: string;
+  @Column()
+  name!: string;
 
-    @Column({ length: 30 })
-    price?: number;
+  @Column('decimal')
+  price!: number;
 
-    @Column({ length: 226 })
-    category?: string;
+  @Column()
+  quantity!: number;
 
-    @Column({ length: 226 })
-    quantity?: string;
-
-    @Column({ length: 226 })
-    createdAt?: Date;
-
-    @Column({ length: 226 })
-    updatedAt?: Date;
-
-
-
-
-
+  @OneToMany(() => Restock, restock => restock.product)
+  restocks!: Restock[];
 }
-
