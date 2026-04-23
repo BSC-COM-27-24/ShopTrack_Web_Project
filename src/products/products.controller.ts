@@ -3,7 +3,7 @@ import { Controller, Get, Post, Param, Body, ParseIntPipe, Delete } from '@nestj
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 
-@Controller('api/v1/products')
+@Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 

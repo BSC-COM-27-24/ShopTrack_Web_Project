@@ -31,4 +31,7 @@ export class EmailService {
             throw error;
         }
     }
+
+
+    //Low stocks alert
 }
