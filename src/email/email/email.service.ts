@@ -1,24 +1,28 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class EmailService {
+    private transporter: nodemailer.Transporter;
 
-    //THE EMAIL TRANSPORTER DEFINITION
+    constructor(private configService: ConfigService) {
+        // Initialize the transporter using ConfigService
+        this.transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: this.configService.get<string>('EMAIL_USER'),
+                pass: this.configService.get<string>('EMAIL_PASS'),
+            },
+        });
+    }
 
-    private transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-    });
-
-    //THE MESSAGGE ITSELF
+    // THE MESSAGE ITSELF
     async sendEmail(to: string, subject: string, text: string) {
         try {
+            const senderEmail = this.configService.get<string>('EMAIL_USER');
             const info = await this.transporter.sendMail({
-                from: `"ShopTrack" <${process.env.EMAIL_USER}>`,
+                from: `"ShopTrack" <${senderEmail}>`,
                 to: to,
                 subject: subject,
                 text: text,
@@ -31,4 +35,6 @@ export class EmailService {
             throw error;
         }
     }
+
+    // Low stocks alert alert (placeholder for user's logic)
 }
