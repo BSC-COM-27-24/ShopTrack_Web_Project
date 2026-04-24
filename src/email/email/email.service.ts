@@ -42,8 +42,8 @@ export class EmailService {
         const subject = `Low Stock Alert: ${prouctName}`;
 
         const text = `The product ${prouctName} is running low.
-        Current stock: ${currentStock}.
-        Please consider reordering the product soon.`;
+Current stock: ${currentStock}.
+Please consider reordering the product soon.`;
 
 
         const adminEmail = this.configService.get<string>('EMAIL_USER');
@@ -59,8 +59,8 @@ export class EmailService {
 
         const text = `Hello,
          Here is a detailed summary of today's sales:
-         -Total sales: ${totalSales}
-         -Total Revenue: MKW ${totalRevenue.toLocaleString()}
+-Total sales: ${totalSales}
+-Total Revenue: MKW ${totalRevenue.toLocaleString()}
          
          `;
 
