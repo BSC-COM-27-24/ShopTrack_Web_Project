@@ -46,7 +46,25 @@ export class EmailService {
         Please consider reordering the product soon.`;
 
 
+        const adminEmail = this.configService.get<string>('EMAIL_USER');
+
         //sending emails to the admin
-        return this.sendEmail(process.env.EMAIL_USER || '', subject, text);
+        return this.sendEmail(adminEmail || '', subject, text);
     }
+
+    //Daily sales email
+
+    async sendDailySalesReport(adminEmail: string, totalSales: number, totalRevenue: number){
+        const subject = `Daily Sales Report - ${new Date(). toLocaleDateString()}`;
+
+        const text = `Hello,
+         Here is a detailed summary of today's sales:
+         -Total sales: ${totalSales}
+         -Total Revenue: MKW ${totalRevenue.toLocaleString()}
+         
+         `;
+
+         return this.sendEmail(adminEmail, subject, text);
+    }
+
 }
