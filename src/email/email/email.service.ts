@@ -36,5 +36,17 @@ export class EmailService {
         }
     }
 
-    // Low stocks alert alert (placeholder for user's logic)
+    // Low stocks alert alert message body definition
+    
+    async sendLowStockAlert(prouctName: string, currentStock: number) {
+        const subject = `Low Stock Alert: ${prouctName}`;
+
+        const text = `The product ${prouctName} is running low.
+        Current stock: ${currentStock}.
+        Please consider reordering the product soon.`;
+
+
+        //sending emails to the admin
+        return this.sendEmail(process.env.EMAIL_USER || '', subject, text);
+    }
 }
