@@ -1,22 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Controller, Get } from '@nestjs/common';
+import { SalesService } from './sales/sales.service';
 
-describe('AppController', () => {
-  let appController: AppController;
+@Controller()
+export class AppController {
+  constructor(private readonly salesService: SalesService) {}
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
-    }).compile();
+  @Get()
+  getHello(): string {
+    return 'Sales API is running 🚀';
+  }
 
-    appController = app.get<AppController>(AppController);
-  });
-
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
-    });
-  });
-});
+  // 🔥 Example: test endpoint using SalesService
+  @Get('summary')
+  getSummary() {
+    return this.salesService.summary();
+  }
+}

@@ -26,8 +26,6 @@ export class Product {
 
   @CreateDateColumn()
   createdAt!: Date;
-
-  // RELATION TO RESTOCKS (IMPORTANT FOR YOUR PROJECT)
-  @OneToMany(() => Restock, (restock) => restock.product)
+   @OneToMany(() => Restock, (restock) => restock.product)
   restocks!: Restock[];
 }

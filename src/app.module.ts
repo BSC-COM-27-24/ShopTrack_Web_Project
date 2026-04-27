@@ -1,42 +1,37 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Sale } from './sales/entities/sale.entity';
+import { Product } from './products/entities/product.entity';
+import { User } from './users/entities/user.entity';
 
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
+import { SalesModule } from './sales/sales.module';
 import { ProductsModule } from './products/products.module';
-import { RestocksModule } from './restocks/restocks.module'; // ✅ IMPORTANT
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
+    // Load .env globally
     ConfigModule.forRoot({ isGlobal: true }),
 
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'oracle',
-        host: config.get('DB_HOST'),
-        port: parseInt(config.get('DB_PORT') || '1521'),
-        username: config.get('DB_USERNAME'),
-        password: config.get('DB_PASSWORD'),
-        serviceName: config.get('DB_SERVICE_NAME'),
-        synchronize: config.get('DB_SYNCHRONIZE') === 'true',
-        autoLoadEntities: true,
-        logging: true,
-      }),
+    // Database connection (Oracle)
+    TypeOrmModule.forRoot({
+      type: 'oracle',
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      connectString: process.env.DB_CONNECT_STRING,
+
+      entities: [Sale, Product, User],
+      autoLoadEntities: true,
+
+      synchronize: true, // ✅ FIXED (for testing only)
     }),
 
-    AuthModule,
+    // Feature modules
     UsersModule,
     ProductsModule,
-    RestocksModule, // ✅ THIS FIXES YOUR ISSUE
+    SalesModule,
   ],
-
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
