@@ -9,6 +9,8 @@ import { User } from './users/entities/user.entity';
 import { SalesModule } from './sales/sales.module';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { RestocksModule } from './restocks/restocks.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     ProductsModule,
     SalesModule,
+    AuthModule,
+    RestocksModule,
   ],
 })
 export class AppModule {}

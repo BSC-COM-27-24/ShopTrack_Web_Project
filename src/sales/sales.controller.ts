@@ -5,10 +5,17 @@ import {
   Body,
   Param,
   Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 import { SalesService } from './sales.service';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('sales') // ✅ FIXED (important)
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
@@ -17,18 +24,13 @@ export class SalesController {
   // CREATE SALE
   // =========================
   @Post()
+  @Roles('Admin', 'Attendant')
   recordSale(
+    @Req() req: any,
     @Body() body: { productId: number; quantity: number },
   ) {
-    // temporary user (since no auth module yet)
-    const fakeUser = {
-      id: 1,
-      username: 'test',
-      role: 'Admin',
-    } as any;
-
     return this.salesService.recordSale(
-      fakeUser,
+      req.user,
       body.productId,
       body.quantity,
     );
@@ -38,20 +40,16 @@ export class SalesController {
   // GET ALL SALES
   // =========================
   @Get()
-  findAll() {
-    const fakeUser = {
-      id: 1,
-      username: 'test',
-      role: 'Admin',
-    } as any;
-
-    return this.salesService.findAll(fakeUser);
+  @Roles('Admin', 'Attendant')
+  findAll(@Req() req: any) {
+    return this.salesService.findAll(req.user);
   }
 
   // =========================
   // SALES SUMMARY
   // =========================
   @Get('summary')
+  @Roles('Admin')
   summary() {
     return this.salesService.summary();
   }
@@ -60,6 +58,7 @@ export class SalesController {
   // DELETE SALE
   // =========================
   @Delete(':id')
+  @Roles('Admin')
   remove(@Param('id') id: number) {
     return this.salesService.remove(id);
   }

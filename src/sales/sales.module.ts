@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { SalesController } from './sales.controller';
@@ -11,6 +12,7 @@ import { User } from '../users/entities/user.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Sale, Product, User]),
+    AuthModule,
   ],
   controllers: [SalesController],
   providers: [SalesService],
