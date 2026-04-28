@@ -20,9 +20,7 @@ import { SalesService } from './sales.service';
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 
-  // =========================
-  // CREATE SALE
-  // =========================
+
   @Post()
   @Roles('Admin', 'Attendant')
   recordSale(
@@ -36,27 +34,21 @@ export class SalesController {
     );
   }
 
-  // =========================
-  // GET ALL SALES
-  // =========================
+
   @Get()
   @Roles('Admin', 'Attendant')
   findAll(@Req() req: any) {
     return this.salesService.findAll(req.user);
   }
 
-  // =========================
-  // SALES SUMMARY
-  // =========================
+
   @Get('summary')
   @Roles('Admin')
   summary() {
     return this.salesService.summary();
   }
 
-  // =========================
-  // DELETE SALE
-  // =========================
+
   @Delete(':id')
   @Roles('Admin')
   remove(@Param('id') id: number) {

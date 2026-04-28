@@ -17,7 +17,6 @@ export class EmailService {
         });
     }
 
-    // THE MESSAGE ITSELF
     async sendEmail(to: string, subject: string, text: string) {
         try {
             const senderEmail = this.configService.get<string>('EMAIL_USER');
@@ -36,8 +35,6 @@ export class EmailService {
         }
     }
 
-    // Low stocks alert alert message body definition
-    
     async sendLowStockAlert(prouctName: string, currentStock: number) {
         const subject = `Low Stock Alert: ${prouctName}`;
 
@@ -48,11 +45,8 @@ Please consider reordering the product soon.`;
 
         const adminEmail = this.configService.get<string>('EMAIL_USER');
 
-        //sending emails to the admin
         return this.sendEmail(adminEmail || '', subject, text);
     }
-
-    //Daily sales email
 
     async sendDailySalesReport(adminEmail: string, totalSales: number, totalRevenue: number){
         const subject = `Daily Sales Report - ${new Date(). toLocaleDateString()}`;
@@ -66,5 +60,28 @@ Please consider reordering the product soon.`;
 
          return this.sendEmail(adminEmail, subject, text);
     }
+    async sendEmailWithAttachment(to: string, subject: string, text: string, pdfBuffer: Buffer, filename: string) {
+        try {
+            const senderEmail = this.configService.get<string>('EMAIL_USER');
+            const info = await this.transporter.sendMail({
+                from: `"ShopTrack" <${senderEmail}>`,
+                to: to,
+                subject: subject,
+                text: text,
+                attachments: [
+                    {
+                        filename: filename,
+                        content: pdfBuffer,
+                        contentType: 'application/pdf',
+                    },
+                ],
+            });
 
+            console.log('Email with attachment sent:', info.response);
+            return info;
+        } catch (error) {
+            console.error('Error sending email with attachment:', error);
+            throw error;
+        }
+    }
 }

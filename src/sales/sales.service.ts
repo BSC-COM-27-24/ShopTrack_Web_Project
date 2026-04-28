@@ -10,6 +10,9 @@ import { Repository } from 'typeorm';
 import { Sale } from './entities/sale.entity';
 import { Product } from '../products/entities/product.entity';
 import { User } from '../users/entities/user.entity';
+import { ConfigService } from '@nestjs/config';
+import { PdfService } from '../pdf/pdf.service';
+import { EmailService } from '../email/email/email.service';
 
 @Injectable()
 export class SalesService {
@@ -19,11 +22,11 @@ export class SalesService {
 
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
+    private pdfService: PdfService,
+    private emailService: EmailService,
+    private configService: ConfigService,
   ) {}
 
-  // =========================
-  // CREATE SALE
-  // =========================
   async recordSale(user: User, productId: number, quantity: number) {
     const product = await this.productRepo.findOne({
       where: { id: productId },
@@ -37,7 +40,6 @@ export class SalesService {
       throw new BadRequestException('Stock too low');
     }
 
-    // reduce stock
     product.quantity -= quantity;
     await this.productRepo.save(product);
 
@@ -49,12 +51,35 @@ export class SalesService {
       totalAmount: product.price * quantity,
     });
 
-    return this.saleRepo.save(sale);
+    const savedSale = await this.saleRepo.save(sale);
+
+    // Send low stock alert if stock drops to 5 or below
+    if (product.quantity <= 5) {
+      await this.emailService.sendLowStockAlert(product.name, product.quantity);
+    }
+
+    // Generate and send receipt to admin
+    const adminEmail = this.configService.get<string>('EMAIL_USER');
+    if (adminEmail) {
+      const pdfBuffer = await this.pdfService.generateReceiptPdf(
+        savedSale.id, 
+        product.name, 
+        quantity, 
+        savedSale.totalAmount, 
+        user.username
+      );
+      await this.emailService.sendEmailWithAttachment(
+        adminEmail,
+        `Sale Receipt - ID: ${savedSale.id}`,
+        `A new sale was recorded. Please find the receipt attached.`,
+        pdfBuffer,
+        `receipt-${savedSale.id}.pdf`
+      );
+    }
+
+    return savedSale;
   }
 
-  // =========================
-  // GET ALL SALES
-  // =========================
   async findAll(user: User) {
     if (user.role === 'Admin') {
       return this.saleRepo.find();
@@ -67,9 +92,6 @@ export class SalesService {
     });
   }
 
-  // =========================
-  // SALES SUMMARY
-  // =========================
   async summary() {
     const result = await this.saleRepo
       .createQueryBuilder('sale')
@@ -80,9 +102,6 @@ export class SalesService {
     return result;
   }
 
-  // =========================
-  // DELETE SALE
-  // =========================
   async remove(id: number) {
     const sale = await this.saleRepo.findOne({
       where: { id },

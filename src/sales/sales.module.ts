@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PdfModule } from '../pdf/pdf.module';
+import { EmailModule } from '../email/email/email.module';
 
 import { SalesController } from './sales.controller';
 import { SalesService } from './sales.service';
@@ -13,6 +15,8 @@ import { User } from '../users/entities/user.entity';
   imports: [
     TypeOrmModule.forFeature([Sale, Product, User]),
     AuthModule,
+    PdfModule,
+    EmailModule,
   ],
   controllers: [SalesController],
   providers: [SalesService],
