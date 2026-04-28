@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 import { Sale } from './sales/entities/sale.entity';
 import { Product } from './products/entities/product.entity';
@@ -15,23 +16,24 @@ import { PdfModule } from './pdf/pdf.module';
 
 @Module({
   imports: [
-    // Load .env globally
     ConfigModule.forRoot({ isGlobal: true }),
 
-    // Database connection (Oracle)
-    TypeOrmModule.forRoot({
-      type: 'oracle',
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      connectString: process.env.DB_CONNECT_STRING,
-
-      entities: [Sale, Product, User],
-      autoLoadEntities: true,
-
-      synchronize: true, // ✅ FIXED (for testing only)
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'oracle',
+        host: config.get('DB_HOST'),
+        port: parseInt(config.get('DB_PORT') || '1521'),
+        username: config.get('DB_USERNAME'),
+        password: config.get('DB_PASSWORD'),
+        serviceName: config.get('DB_SERVICE_NAME'),
+        synchronize: config.get('DB_SYNCHRONIZE') === 'true',
+        entities: [Product, User, Sale],
+        autoLoadEntities: true,
+        logging: true,
+      }),
     }),
-
-    // Feature modules
     UsersModule,
     ProductsModule,
     SalesModule,
@@ -40,4 +42,4 @@ import { PdfModule } from './pdf/pdf.module';
     PdfModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
