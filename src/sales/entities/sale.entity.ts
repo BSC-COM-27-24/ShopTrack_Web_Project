@@ -4,10 +4,10 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
-  JoinColumn,
 } from 'typeorm';
 
 import { Product } from '../../products/entities/product.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('sales')
 export class Sale {
@@ -15,14 +15,19 @@ export class Sale {
   id: number;
 
   @ManyToOne(() => Product, { eager: true })
-  @JoinColumn({ name: 'productId' })
   product: Product;
+
+  @ManyToOne(() => User, { eager: true })
+  soldBy: User;
 
   @Column()
   quantity: number;
 
-  @Column('decimal')
-  totalPrice: number;
+  @Column('decimal', { precision: 10, scale: 2 })
+  unitPrice: number;
+
+  @Column('decimal', { precision: 10, scale: 2 })
+  totalAmount: number;
 
   @CreateDateColumn()
   createdAt: Date;
