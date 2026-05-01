@@ -1,15 +1,10 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
-
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Sale } from './entities/sale.entity';
 import { Product } from '../products/entities/product.entity';
-import { User } from '../users/entities/user.entity';
+import { Restock } from '../restocks/entities/restock.entity';
 
 @Injectable()
 export class SalesService {
@@ -19,12 +14,15 @@ export class SalesService {
 
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
+
+    @InjectRepository(Restock)
+    private restockRepo: Repository<Restock>,
   ) {}
 
-  // =========================
-  // CREATE SALE
-  // =========================
-  async recordSale(user: User, productId: number, quantity: number) {
+  // ✅ CREATE SALE
+  async createSale(productId: number, quantity: number) {
+
+    // 1. Find product
     const product = await this.productRepo.findOne({
       where: { id: productId },
     });
@@ -33,65 +31,52 @@ export class SalesService {
       throw new NotFoundException('Product not found');
     }
 
-    if (product.quantity < quantity) {
-      throw new BadRequestException('Stock too low');
+    // 2. Check stock
+    const stock = await this.restockRepo.findOne({
+      where: { product: { id: productId } },
+    });
+
+    if (!stock) {
+      throw new NotFoundException('Stock record not found');
     }
 
-    // reduce stock
-    product.quantity -= quantity;
-    await this.productRepo.save(product);
+    if (stock.quantity < quantity) {
+      throw new BadRequestException('Not enough stock');
+    }
 
+    // 3. Reduce stock
+    stock.quantity -= quantity;
+    await this.restockRepo.save(stock);
+
+    // 4. Create sale record
     const sale = this.saleRepo.create({
       product,
-      soldBy: user,
       quantity,
-      unitPrice: product.price,
-      totalAmount: product.price * quantity,
+      totalPrice: product.price * quantity,
     });
 
-    return this.saleRepo.save(sale);
+    // 5. Save sale
+    return await this.saleRepo.save(sale);
   }
 
-  // =========================
-  // GET ALL SALES
-  // =========================
-  async findAll(user: User) {
-    if (user.role === 'Admin') {
-      return this.saleRepo.find();
-    }
-
+  // ✅ GET ALL SALES
+  async findAll() {
     return this.saleRepo.find({
-      where: {
-        soldBy: { id: user.id },
-      },
+      relations: ['product'],
     });
   }
 
-  // =========================
-  // SALES SUMMARY
-  // =========================
-  async summary() {
-    const result = await this.saleRepo
-      .createQueryBuilder('sale')
-      .select('COUNT(sale.id)', 'totalSales')
-      .addSelect('SUM(sale.totalAmount)', 'totalRevenue')
-      .getRawOne();
-
-    return result;
-  }
-
-  // =========================
-  // DELETE SALE
-  // =========================
-  async remove(id: number) {
+  // ✅ GET ONE SALE
+  async findOne(id: number) {
     const sale = await this.saleRepo.findOne({
       where: { id },
+      relations: ['product'],
     });
 
     if (!sale) {
       throw new NotFoundException('Sale not found');
     }
 
-    return this.saleRepo.delete(id);
+    return sale;
   }
 }
