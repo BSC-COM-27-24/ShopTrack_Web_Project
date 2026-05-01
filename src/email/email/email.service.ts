@@ -35,7 +35,7 @@ export class EmailService {
         }
     }
 
-    async sendLowStockAlert(prouctName: string, currentStock: number) {
+    async sendLowStockAlert(to: string, prouctName: string, currentStock: number) {
         const subject = `Low Stock Alert: ${prouctName}`;
 
         const text = `The product ${prouctName} is running low.
@@ -43,9 +43,7 @@ Current stock: ${currentStock}.
 Please consider reordering the product soon.`;
 
 
-        const adminEmail = this.configService.get<string>('EMAIL_USER');
-
-        return this.sendEmail(adminEmail || '', subject, text);
+        return this.sendEmail(to, subject, text);
     }
 
     async sendDailySalesReport(adminEmail: string, totalSales: number, totalRevenue: number){

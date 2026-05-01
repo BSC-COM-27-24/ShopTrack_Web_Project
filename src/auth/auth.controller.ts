@@ -37,12 +37,6 @@ export class AuthController {
         return this.usersService.clearAllData();
     }
 
-    //LOGOUT FUNCTION
-
-    @Post('logout')
-    async logout() {
-        return this.authService.logout();
-    }
 
 
 }

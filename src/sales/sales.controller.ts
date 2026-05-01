@@ -16,7 +16,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { SalesService } from './sales.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('sales') // ✅ FIXED (important)
+@Controller('sales') 
 export class SalesController {
   constructor(private readonly salesService: SalesService) {}
 

@@ -22,6 +22,10 @@ export class SalesService {
 
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
+
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+
     private pdfService: PdfService,
     private emailService: EmailService,
     private configService: ConfigService,
@@ -53,14 +57,18 @@ export class SalesService {
 
     const savedSale = await this.saleRepo.save(sale);
 
+    // Find all admins to send notifications to
+    const admins = await this.userRepo.find({ where: { role: 'Admin' } });
+
     // Send low stock alert if stock drops to 5 or below
     if (product.quantity <= 5) {
-      await this.emailService.sendLowStockAlert(product.name, product.quantity);
+      for (const admin of admins) {
+        await this.emailService.sendLowStockAlert(admin.email, product.name, product.quantity);
+      }
     }
 
     // Generate and send receipt to admin
-    const adminEmail = this.configService.get<string>('EMAIL_USER');
-    if (adminEmail) {
+    if (admins.length > 0) {
       const pdfBuffer = await this.pdfService.generateReceiptPdf(
         savedSale.id, 
         product.name, 
@@ -68,13 +76,16 @@ export class SalesService {
         savedSale.totalAmount, 
         user.username
       );
-      await this.emailService.sendEmailWithAttachment(
-        adminEmail,
-        `Sale Receipt - ID: ${savedSale.id}`,
-        `A new sale was recorded. Please find the receipt attached.`,
-        pdfBuffer,
-        `receipt-${savedSale.id}.pdf`
-      );
+      
+      for (const admin of admins) {
+        await this.emailService.sendEmailWithAttachment(
+          admin.email,
+          `Sale Receipt - ID: ${savedSale.id}`,
+          `A new sale was recorded. Please find the receipt attached.`,
+          pdfBuffer,
+          `receipt-${savedSale.id}.pdf`
+        );
+      }
     }
 
     return savedSale;
