@@ -12,15 +12,17 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    // GET /api/v1/users - List all users
-    @Get()
-    async findAll() {
-        const users = await this.usersService.findAll();
-        return {
-            status: 'success',
-            data: users
-        };
-    }
+     // GET /api/v1/users - List all users
+  @Get()
+  async findAll() {
+    const users = await this.usersService.findAll();
+    // Remove passwords from all users before sending
+    const safeUsers = users.map(({ password, ...rest }) => rest);
+    return {
+      status: 'success',
+      data: safeUsers,
+    };
+  }
 
     // GET /api/v1/users/:id - Get user details by id
     @Get(':id')
@@ -32,30 +34,26 @@ export class UsersController {
         };
     }
 
-    // POST /api/v1/users - Create attendant account
-    @Post()
-    @HttpCode(HttpStatus.CREATED)
-    async create(@Body() createUserDto: CreateUserDto) {
-        // Only allow creating Attendant accounts via this endpoint
-        if (createUserDto.role === 'Admin') {
-            throw new BadRequestException('Admin account must be created through setup endpoint');
-        }
-        
-        const user = await this.usersService.createUser(
-            createUserDto.name,
-            createUserDto.username,
-            createUserDto.password,
-            createUserDto.email,
-            createUserDto.role
-        );
-        
-        const { password, ...userWithoutPassword } = user;
-        return {
-            status: 'success',
-            message: 'Attendant account created successfully',
-            data: userWithoutPassword
-        };
-    }
+   // POST /api/v1/users - Create a user (Admin or Attendant)
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createUserDto: CreateUserDto) {
+    
+    const user = await this.usersService.createUser(
+      createUserDto.name,
+      createUserDto.username,
+      createUserDto.password,
+      createUserDto.email,
+      createUserDto.role, // can be 'Admin' or 'Attendant'
+    );
+
+    const { password, ...userWithoutPassword } = user;
+    return {
+      status: 'success',
+      message: `${user.role} account created successfully`,
+      data: userWithoutPassword,
+    };
+  }
 
     // PATCH /api/v1/users/:id - Update user details
     @Patch(':id')
