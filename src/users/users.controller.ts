@@ -1,9 +1,14 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
-@Controller('api/v1/users')
+@Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('Admin')
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 

@@ -2,22 +2,24 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import * as bcrypt from 'bcryptjs'; // ← Use * as bcrypt (not default import)
+import * as bcrypt from 'bcryptjs'; 
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
+
+
   deleteUser(id: number) {
-      throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.');
   }
   updateUser(id: number, updateUserDto: UpdateUserDto) {
-      throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.');
   }
   findById(id: number) {
-      throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.');
   }
   findAll() {
-      throw new Error('Method not implemented.');
+    throw new Error('Method not implemented.');
   }
 
   constructor(
@@ -26,7 +28,7 @@ export class UsersService {
   ) { }
 
 
-  //CREATING A USER FOR THE FIRST TIME
+
 
   async createUser(
     name: string,
