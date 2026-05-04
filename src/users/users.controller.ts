@@ -14,6 +14,7 @@ export class UsersController {
 
      // GET /api/v1/users - List all users
   @Get()
+  @Roles('Admin')
   async findAll() {
     const users = await this.usersService.findAll();
     // Remove passwords from all users before sending
@@ -26,6 +27,7 @@ export class UsersController {
 
     // GET /api/v1/users/:id - Get user details by id
     @Get(':id')
+    @Roles('Admin')
     async findOne(@Param('id', ParseIntPipe) id: number) {
         const user = await this.usersService.findById(id);
         return {
@@ -37,6 +39,7 @@ export class UsersController {
    // POST /api/v1/users - Create a user (Admin or Attendant)
   @Post()
   @HttpCode(HttpStatus.CREATED)
+   @Roles('Admin')
   async create(@Body() createUserDto: CreateUserDto) {
     
     const user = await this.usersService.createUser(
@@ -57,6 +60,7 @@ export class UsersController {
 
     // PATCH /api/v1/users/:id - Update user details
     @Patch(':id')
+     @Roles('Admin')
     async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateUserDto: UpdateUserDto
@@ -71,6 +75,7 @@ export class UsersController {
 
     // DELETE /api/v1/users/:id - Delete user
     @Delete(':id')
+    @Roles('Admin')
     @HttpCode(HttpStatus.OK)
     async delete(@Param('id', ParseIntPipe) id: number) {
         const result = await this.usersService.deleteUser(id);
