@@ -23,10 +23,10 @@ export class Sale {
   @Column()
   quantity: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('numeric', { precision: 10, scale: 2 })
   unitPrice: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('numeric', { precision: 10, scale: 2 })
   totalAmount: number;
 
   @CreateDateColumn()

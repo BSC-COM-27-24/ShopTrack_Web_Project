@@ -12,19 +12,19 @@ import { SalesModule } from './sales/sales.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'postgres',        // change to 'mysql' or 'sqlite' if needed
+      type: 'oracle',
       host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'yourpassword',
-      database: 'shop_truck',
-      autoLoadEntities: true,  // picks up all forFeature() entities automatically
-      synchronize: true,       // turn OFF in production
+      port: 1521,                      
+      username: 'shoptrack_admin',     
+      password: 'shopadmin',           
+      serviceName: 'shoptrack_pdb',    
+      autoLoadEntities: true,
+      synchronize: true,               
     }),
     AuthModule,
     UsersModule,
     ProductsModule,
-    SalesModule,               // ← your module goes here
+    SalesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -21,7 +21,7 @@ export class SalesService {
     private productRepo: Repository<Product>,
   ) {}
 
-  // ─── Record a Sale ──────────────────────────────────────────────────────────
+
   async recordSale(user: User, productId: number, quantity: number) {
     const product = await this.productRepo.findOne({ where: { id: productId } });
 
@@ -31,7 +31,7 @@ export class SalesService {
         `Stock too low. Only ${product.quantity} unit(s) available.`,
       );
 
-    // Deduct stock
+    
     product.quantity -= quantity;
     await this.productRepo.save(product);
 
@@ -45,7 +45,7 @@ export class SalesService {
 
     const saved = await this.saleRepo.save(sale);
 
-    // Check if stock is now low and alert admin (threshold: 5 units)
+
     if (product.quantity <= 5) {
       await this.sendLowStockAlert(product);
     }
@@ -53,7 +53,7 @@ export class SalesService {
     return saved;
   }
 
-  // ─── Get All Sales ───────────────────────────────────────────────────────────
+ 
   // Admin sees all; attendant sees only their own
   async findAll(user: User) {
     if (user.role === 'Admin') {
@@ -65,7 +65,7 @@ export class SalesService {
     });
   }
 
-  // ─── Sales Summary ───────────────────────────────────────────────────────────
+  
   async summary() {
     const result = await this.saleRepo
       .createQueryBuilder('sale')
@@ -79,13 +79,13 @@ export class SalesService {
     };
   }
 
-  // ─── Get Receipt for a Single Sale ──────────────────────────────────────────
+
   async getReceipt(saleId: number, user: User) {
     const sale = await this.saleRepo.findOne({ where: { id: saleId } });
 
     if (!sale) throw new NotFoundException('Sale not found');
 
-    // Attendant can only get their own receipt
+  
     if (user.role !== 'Admin' && sale.soldBy.id !== user.id) {
       throw new BadRequestException('Access denied');
     }
@@ -101,7 +101,7 @@ export class SalesService {
     };
   }
 
-  // ─── Trigger Daily Sales Email to Admin ─────────────────────────────────────
+  
   async sendDailySalesEmail(adminEmail: string) {
     const today = new Date();
     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
@@ -150,7 +150,7 @@ export class SalesService {
     return { message: 'Daily sales email sent', totalTransactions: sales.length, totalRevenue };
   }
 
-  // ─── Internal: Send Low Stock Alert ─────────────────────────────────────────
+  
   private async sendLowStockAlert(product: Product) {
     // Fetch admin email from DB or use env variable
     const adminEmail = process.env.ADMIN_EMAIL;
@@ -166,7 +166,7 @@ export class SalesService {
     await this.sendEmail(adminEmail, `Low Stock Alert: ${product.name}`, html);
   }
 
-  // ─── Internal: Nodemailer Transport ─────────────────────────────────────────
+
   private async sendEmail(to: string, subject: string, html: string) {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
