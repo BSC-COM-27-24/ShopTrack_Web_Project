@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { RestocksModule } from './restocks/restocks.module';
 import { PdfModule } from './pdf/pdf.module';
+import { Restock } from './restocks/entities/restock.entity';
 
 @Module({
 
@@ -29,7 +30,7 @@ username: config.get('DB_USERNAME'),
 password: config.get('DB_PASSWORD'),
 serviceName: config.get('DB_SERVICE_NAME'),
 synchronize: config.get('DB_SYNCHRONIZE') === 'true',
-entities: [Product, User, Sale],
+entities: [Product, User, Sale, Restock],
 autoLoadEntities: true,
 logging: true,
 }),
