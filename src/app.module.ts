@@ -15,24 +15,42 @@ import { RestocksModule } from './restocks/restocks.module';
 import { PdfModule } from './pdf/pdf.module';
 
 @Module({
+
   imports: [
+ConfigModule.forRoot({ isGlobal: true }),
+TypeOrmModule.forRootAsync({
+imports: [ConfigModule],
+inject: [ConfigService],
+useFactory: (config: ConfigService) => ({
+type: 'oracle',
+host: config.get('DB_HOST'),
+port: 1522,
+username: config.get('DB_USERNAME'),
+password: config.get('DB_PASSWORD'),
+serviceName: config.get('DB_SERVICE_NAME'),
+synchronize: config.get('DB_SYNCHRONIZE') === 'true',
+entities: [Product, User, Sale],
+autoLoadEntities: true,
+logging: true,
+}),
+  /**imports: [
     ConfigModule.forRoot({ isGlobal: true }),
 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      TypeOrmModule.forRoot({
         type: 'oracle',
-        host: config.get('DB_HOST'),
-        port: parseInt(config.get('DB_PORT') || '1521'),
-        username: config.get('DB_USERNAME'),
-        password: config.get('DB_PASSWORD'),
-        serviceName: config.get('DB_SERVICE_NAME'),
-        synchronize: config.get('DB_SYNCHRONIZE') === 'true',
+        host: 'localhost',
+        port: 1522,
+        user: 'DB_USERNAME',
+        password: 'DB_PASSWORD',
+        serviceName: 'DB_SERVICE_NAME',
+        synchronize: 'DB_SYNCHRONIZE',
         entities: [Product, User, Sale],
         autoLoadEntities: true,
         logging: true,
-      }),
+      }), **/
     }),
     UsersModule,
     ProductsModule,

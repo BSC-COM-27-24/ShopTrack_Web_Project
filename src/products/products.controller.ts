@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Param, Body, ParseIntPipe, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, ParseIntPipe, Delete, UseGuards, Patch } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -27,11 +28,26 @@ export class ProductsController {
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
-
+  
+  @Patch()
+  @Roles('Admin')
+  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto){
+    return this.productsService.update(+id,updateProductDto);
+  }
   @Delete()
   @Roles('Admin')
   deleteAll() {
     return this.productsService.deleteAll();
+  }
+
+  @Delete(':id')
+ remove(@Param('id') id: string) {
+  return this.productsService.disable(+id);
+}
+
+  @Delete()
+  removeOne(@Param('id') id: string){
+    return this.productsService.removeOne(+id);
   }
 }
 

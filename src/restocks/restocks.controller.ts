@@ -16,6 +16,8 @@ export class RestocksController {
     return this.restocksService.findAll();
   }
 
+  
+
   // POST /api/v1/restocks
   @Post()
   @Roles('Admin', 'Attendant')
