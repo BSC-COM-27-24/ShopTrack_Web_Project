@@ -41,11 +41,13 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @Roles('Admin')
  remove(@Param('id') id: string) {
   return this.productsService.disable(+id);
 }
 
-  @Delete()
+  @Delete(':id')
+  @Roles('Admin')
   removeOne(@Param('id') id: string){
     return this.productsService.removeOne(+id);
   }
