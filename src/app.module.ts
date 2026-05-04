@@ -24,7 +24,7 @@ inject: [ConfigService],
 useFactory: (config: ConfigService) => ({
 type: 'oracle',
 host: config.get('DB_HOST'),
-port: 1522,
+port: 1521,
 username: config.get('DB_USERNAME'),
 password: config.get('DB_PASSWORD'),
 serviceName: config.get('DB_SERVICE_NAME'),
@@ -33,24 +33,6 @@ entities: [Product, User, Sale],
 autoLoadEntities: true,
 logging: true,
 }),
-  /**imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      TypeOrmModule.forRoot({
-        type: 'oracle',
-        host: 'localhost',
-        port: 1522,
-        user: 'DB_USERNAME',
-        password: 'DB_PASSWORD',
-        serviceName: 'DB_SERVICE_NAME',
-        synchronize: 'DB_SYNCHRONIZE',
-        entities: [Product, User, Sale],
-        autoLoadEntities: true,
-        logging: true,
-      }), **/
     }),
     UsersModule,
     ProductsModule,
