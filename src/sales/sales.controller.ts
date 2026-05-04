@@ -2,9 +2,11 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Body,
   Req,
   Query,
+  Param,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -42,5 +44,10 @@ export class SalesController {
   @Post('daily-email')
   sendDailyEmail(@Body() body: { adminEmail: string }) {
     return this.salesService.sendDailySalesEmail(body.adminEmail);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: number) {
+    return this.salesService.remove(id);
   }
 }

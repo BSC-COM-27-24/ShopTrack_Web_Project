@@ -55,13 +55,7 @@ export class AuthService {
 
     return {
       message: 'Admin account created successfully',
-      user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
+      
     };
   }
 
@@ -93,20 +87,9 @@ export class AuthService {
 
     return {
       message: 'Login successful',
-      access_token,
-      user: {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-      },
+      access_token, 
     };
   }
 
-  //LOGOUT FUNCTION
-
-  async logout() {
-    return 'Logout successfull';
-  }
+  
 }

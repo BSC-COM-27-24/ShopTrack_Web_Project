@@ -9,16 +9,17 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 export class RestocksController {
   constructor(private readonly restocksService: RestocksService) {}
 
-  // GET /api/v1/restocks
   @Get()
-  @Roles('Admin', 'Attendant')
+  @Roles('Admin', 'Attendant') // both can view
   findAll() {
     return this.restocksService.findAll();
   }
 
+  
+
   // POST /api/v1/restocks
   @Post()
-  @Roles('Admin', 'Attendant')
+  @Roles('Admin') // only Admin can create restocks
   create(@Body() body: { productId: number; quantity: number }) {
     return this.restocksService.create(body.productId, body.quantity);
   }

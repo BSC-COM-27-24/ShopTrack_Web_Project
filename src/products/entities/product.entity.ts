@@ -26,6 +26,10 @@ export class Product {
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @Column({default: true})
+  isActive!: boolean;
+
    @OneToMany(() => Restock, (restock) => restock.product)
   restocks!: Restock[];
 }

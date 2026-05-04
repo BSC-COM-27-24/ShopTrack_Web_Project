@@ -10,6 +10,9 @@ import * as nodemailer from 'nodemailer';
 import { Sale } from './entities/sale.entity';
 import { Product } from '../products/entities/product.entity';
 import { User } from '../users/entities/user.entity';
+import { ConfigService } from '@nestjs/config';
+import { PdfService } from '../pdf/pdf.service';
+import { EmailService } from '../email/email/email.service';
 
 @Injectable()
 export class SalesService {
@@ -19,9 +22,19 @@ export class SalesService {
 
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
+
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
+
+    private pdfService: PdfService,
+    private emailService: EmailService,
+    private configService: ConfigService,
   ) {}
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 93aa00f53501450b841b5728c40aeb4ce861d5e1
   async recordSale(user: User, productId: number, quantity: number) {
     const product = await this.productRepo.findOne({ where: { id: productId } });
 
@@ -31,7 +44,14 @@ export class SalesService {
         `Stock too low. Only ${product.quantity} unit(s) available.`,
       );
 
+<<<<<<< HEAD
     
+=======
+    if (product.quantity < quantity) {
+      throw new BadRequestException('Stock too low');
+    }
+
+>>>>>>> 93aa00f53501450b841b5728c40aeb4ce861d5e1
     product.quantity -= quantity;
     await this.productRepo.save(product);
 
@@ -43,11 +63,53 @@ export class SalesService {
       totalAmount: product.price * quantity,
     });
 
+<<<<<<< HEAD
     const saved = await this.saleRepo.save(sale);
 
 
     if (product.quantity <= 5) {
       await this.sendLowStockAlert(product);
+=======
+    const savedSale = await this.saleRepo.save(sale);
+
+    // Find all admins to send notifications to
+    const admins = await this.userRepo.find({ where: { role: 'Admin' } });
+
+    // Send low stock alert if stock drops to 5 or below
+    if (product.quantity <= 5) {
+      for (const admin of admins) {
+        await this.emailService.sendLowStockAlert(admin.email, product.name, product.quantity);
+      }
+    }
+
+    // Generate and send receipt to admin
+    if (admins.length > 0) {
+      const pdfBuffer = await this.pdfService.generateReceiptPdf(
+        savedSale.id, 
+        product.name, 
+        quantity, 
+        savedSale.totalAmount, 
+        user.username
+      );
+      
+      for (const admin of admins) {
+        await this.emailService.sendEmailWithAttachment(
+          admin.email,
+          `Sale Receipt - ID: ${savedSale.id}`,
+          `A new sale was recorded. Please find the receipt attached.`,
+          pdfBuffer,
+          `receipt-${savedSale.id}.pdf`
+        );
+      }
+    }
+
+    return savedSale;
+  }
+
+  async findAll(user: User) {
+    if (user.role === 'Admin') {
+      return this.saleRepo.find();
+>>>>>>> 93aa00f53501450b841b5728c40aeb4ce861d5e1
     }
 
     return saved;
@@ -65,7 +127,10 @@ export class SalesService {
     });
   }
 
+<<<<<<< HEAD
   
+=======
+>>>>>>> 93aa00f53501450b841b5728c40aeb4ce861d5e1
   async summary() {
     const result = await this.saleRepo
       .createQueryBuilder('sale')
@@ -79,6 +144,13 @@ export class SalesService {
     };
   }
 
+<<<<<<< HEAD
+=======
+  async remove(id: number) {
+    const sale = await this.saleRepo.findOne({
+      where: { id },
+    });
+>>>>>>> 93aa00f53501450b841b5728c40aeb4ce861d5e1
 
   async getReceipt(saleId: number, user: User) {
     const sale = await this.saleRepo.findOne({ where: { id: saleId } });
