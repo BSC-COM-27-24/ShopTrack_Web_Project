@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Restock } from '../../restocks/entities/restock.entity';
 
 @Entity('products')
@@ -6,15 +12,20 @@ export class Product {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ length: 255 })
   name!: string;
 
   @Column('decimal')
   price!: number;
 
-  @Column()
+  @Column('int')
   quantity!: number;
 
-  @OneToMany(() => Restock, restock => restock.product)
+  @Column({ length: 100, nullable: true })
+  category!: string;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+   @OneToMany(() => Restock, (restock) => restock.product)
   restocks!: Restock[];
 }

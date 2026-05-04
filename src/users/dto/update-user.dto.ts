@@ -5,22 +5,21 @@ export class UpdateUserDto {
     @IsString()
     name?: string;
 
-    //@IsOptional()
+    @IsOptional()
     @IsString()
-    @MinLength(15)
+    @MinLength(10)
     username?: string;
 
-    //@IsOptional()
+    @IsOptional()
     @IsString()
-    @IsNotEmpty({message: 'Enter a password'})
-    @MinLength(8)
+    @MinLength(8)  // Removed @IsNotEmpty() because @MinLength(8) already ensures not empty if present
     password?: string;
 
-   // @IsOptional()
+    @IsOptional()
     @IsEmail()
     email?: string;
 
-   // @IsOptional()
+    @IsOptional()
     @IsString()
     @IsIn(['Admin', 'Attendant'])
     role?: 'Admin' | 'Attendant';

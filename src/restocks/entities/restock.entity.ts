@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+} from 'typeorm';
 import { Product } from '../../products/entities/product.entity';
 
 @Entity('restocks')
@@ -9,6 +15,14 @@ export class Restock {
   @Column()
   quantity!: number;
 
-  @ManyToOne(() => Product, product => product.restocks)
+  @Column()
+  productId!: number;
+
+  @ManyToOne(() => Product, (product) => product.restocks, {
+    onDelete: 'CASCADE',
+  })
   product!: Product;
+
+  @CreateDateColumn()
+  createdAt!: Date;
 }
