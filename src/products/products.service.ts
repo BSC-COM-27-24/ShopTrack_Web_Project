@@ -38,13 +38,10 @@ export class ProductsService {
     return this.productRepo.clear();
   }
 
-  /**async create(createBookDto: CreateBookDto): {
-const book = this.productRepo.create(createBookDto);
-return await this.productRepo.save(book);
-  } ***/
 
 
-  // UPDATE — changes specific fields on an existing book
+
+  
 async update(id: number, updateProductDto: UpdateProductDto){
 await this.findOne(id);
 await this.productRepo.update(id, updateProductDto);
@@ -54,7 +51,7 @@ return await this.findOne(id);
 async removeOne(id: number): Promise<{ message: string }> {
 await this.findOne(id);
 await this.productRepo.delete(id);
-return { message: `Book ${id} deleted successfully` };
+return { message: `product ${id} deleted successfully` };
 }
 
 async disable(id: number): Promise<void> {
