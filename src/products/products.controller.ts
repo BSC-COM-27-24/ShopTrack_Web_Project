@@ -40,7 +40,7 @@ export class ProductsController {
     return this.productsService.deleteAll();
   }
 
-  @Delete(':id')
+  @Patch(':id')
   @Roles('Admin')
  remove(@Param('id') id: string) {
   return this.productsService.disable(+id);
