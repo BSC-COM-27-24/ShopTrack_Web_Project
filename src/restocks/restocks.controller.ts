@@ -15,6 +15,9 @@ export class RestocksController {
     return this.restocksService.findAll();
   }
 
+  
+
+  // POST /api/v1/restocks
   @Post()
   @Roles('Admin') // only Admin can create restocks
   create(@Body() body: { productId: number; quantity: number }) {
