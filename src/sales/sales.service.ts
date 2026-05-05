@@ -110,7 +110,46 @@ export class SalesService {
       .addSelect('SUM(sale.totalAmount)', 'totalRevenue')
       .getRawOne();
 
-    return result;
+    return {
+      totalSales: parseInt(result.totalSales || '0'),
+      totalRevenue: parseFloat(result.totalRevenue || '0'),
+    };
+  }
+
+  async sendDailyReport() {
+    const stats = await this.summary();
+    const admins = await this.userRepo.find({ where: { role: 'Admin' } });
+
+    for (const admin of admins) {
+      await this.emailService.sendDailySalesReport(
+        admin.email,
+        stats.totalSales,
+        stats.totalRevenue,
+      );
+    }
+
+    return { message: `Daily report sent to ${admins.length} admins` };
+  }
+
+  async getReceiptBuffer(id: number): Promise<{ buffer: Buffer; sale: Sale }> {
+    const sale = await this.saleRepo.findOne({
+      where: { id },
+      relations: ['product', 'soldBy'],
+    });
+
+    if (!sale) {
+      throw new NotFoundException(`Sale with ID ${id} not found`);
+    }
+
+    const buffer = await this.pdfService.generateReceiptPdf(
+      sale.id,
+      sale.product.name,
+      sale.quantity,
+      sale.totalAmount,
+      sale.soldBy.username,
+    );
+
+    return { buffer, sale };
   }
 
   async remove(id: number) {

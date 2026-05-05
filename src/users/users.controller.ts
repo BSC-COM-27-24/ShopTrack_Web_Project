@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,6 +7,8 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 
+@ApiTags('users')
+@ApiBearerAuth()
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('Admin')
@@ -15,6 +18,7 @@ export class UsersController {
      // GET /api/v1/users - List all users
   @Get()
   @Roles('Admin')
+  @ApiOperation({ summary: 'List all users (Admin only)' })
   async findAll() {
     const users = await this.usersService.findAll();
     // Remove passwords from all users before sending
@@ -28,6 +32,7 @@ export class UsersController {
     // GET /api/v1/users/:id - Get user details by id
     @Get(':id')
     @Roles('Admin')
+    @ApiOperation({ summary: 'Get user details by ID' })
     async findOne(@Param('id', ParseIntPipe) id: number) {
         const user = await this.usersService.findById(id);
         return {
@@ -40,6 +45,7 @@ export class UsersController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
    @Roles('Admin')
+  @ApiOperation({ summary: 'Create a new user (Admin only)' })
   async create(@Body() createUserDto: CreateUserDto) {
     
     const user = await this.usersService.createUser(
@@ -61,6 +67,7 @@ export class UsersController {
     // PATCH /api/v1/users/:id - Update user details
     @Patch(':id')
      @Roles('Admin')
+    @ApiOperation({ summary: 'Update user details' })
     async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateUserDto: UpdateUserDto
@@ -77,6 +84,7 @@ export class UsersController {
     @Delete(':id')
     @Roles('Admin')
     @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Delete a user by ID' })
     async delete(@Param('id', ParseIntPipe) id: number) {
         const result = await this.usersService.deleteUser(id);
       return {
