@@ -29,7 +29,7 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
   
-  @Patch()
+  @Patch(':id')
   @Roles('Admin')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto){
     return this.productsService.update(+id,updateProductDto);
@@ -40,7 +40,7 @@ export class ProductsController {
     return this.productsService.deleteAll();
   }
 
-  @Patch(':id')
+  @Patch(':id/disable')
   @Roles('Admin')
  remove(@Param('id') id: string) {
   return this.productsService.disable(+id);
