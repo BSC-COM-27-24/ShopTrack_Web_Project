@@ -7,16 +7,15 @@ import {
   Delete,
   UseGuards,
   Req,
-  Res,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiBody } from '@nestjs/swagger';
-import * as express from 'express';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 import { SalesService } from './sales.service';
+import { CreateSaleDto } from './dto/create-sale.dto';
 
 @ApiTags('sales')
 @ApiBearerAuth()
@@ -29,25 +28,17 @@ export class SalesController {
   @Post()
   @Roles('Admin', 'Attendant')
   @ApiOperation({ summary: 'Record a new sale' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        productId: { type: 'number' },
-        quantity: { type: 'number' },
-      },
-    },
-  })
   recordSale(
     @Req() req: any,
-    @Body() body: { productId: number; quantity: number },
+    @Body() createSaleDto: CreateSaleDto,
   ) {
     return this.salesService.recordSale(
       req.user,
-      body.productId,
-      body.quantity,
+      createSaleDto.productId,
+      createSaleDto.quantity,
     );
   }
+
 
 
   @Get()
@@ -71,30 +62,5 @@ export class SalesController {
   @ApiOperation({ summary: 'Delete a sale by ID' })
   remove(@Param('id') id: number) {
     return this.salesService.remove(id);
-  }
-
-  @Post('daily-email')
-  @Roles('Admin')
-  @ApiOperation({ summary: 'Trigger daily sales report email' })
-  async sendDailyEmail() {
-    return this.salesService.sendDailyReport();
-  }
-
-  @Get('receipt/:id')
-  @Roles('Admin', 'Attendant')
-  @ApiOperation({ summary: 'Download a receipt PDF' })
-  async downloadReceipt(
-    @Param('id') id: number,
-    @Res() res: express.Response,
-  ) {
-    const { buffer, sale } = await this.salesService.getReceiptBuffer(id);
-    
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=receipt-${sale.id}.pdf`,
-      'Content-Length': buffer.length,
-    });
-
-    res.end(buffer);
   }
 }
