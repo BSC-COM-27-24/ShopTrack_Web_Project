@@ -35,11 +35,7 @@ export class AuthController {
         return await this.authService.login(loginDto);
     }
 
-    //TEMPORARY DATA CLEAR WHILE THE DATABASE IS BEING WORKED ON
-    @Delete('clear')
-    clearData() {
-        return this.usersService.clearAllData();
-    }
+}
 
 
 
