@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { RestocksService } from './restocks.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateRestockDto } from './dto/create-restock.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiTags('restocks')
 @ApiBearerAuth()
@@ -15,17 +15,16 @@ export class RestocksController {
 
   @Get()
   @Roles('Admin', 'Attendant') // both can view
-  @ApiOperation({ summary: 'Retrieve all restock history' })
-  @ApiResponse({ status: 200, description: 'Return all restocks.' })
+  @ApiOperation({ summary: 'Get all restock records' })
   findAll() {
     return this.restocksService.findAll();
   }
 
+  // POST /api/v1/restocks
   @Post()
-  @Roles('Admin', 'Attendant') // BOTH can create restocks now
-  @ApiOperation({ summary: 'Record a new restock' })
-  @ApiResponse({ status: 201, description: 'Restock recorded successfully.' })
-  create(@Req() req: any, @Body() createRestockDto: CreateRestockDto) {
-    return this.restocksService.create(req.user, createRestockDto);
+  @Roles('Admin') // only Admin can create restocks
+  @ApiOperation({ summary: 'Create a new restock record' })
+  create(@Body() createRestockDto: CreateRestockDto) {
+    return this.restocksService.create(createRestockDto.productId, createRestockDto.quantity);
   }
 }

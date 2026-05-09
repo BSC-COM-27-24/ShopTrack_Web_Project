@@ -150,10 +150,22 @@ export class UsersService {
   async deleteUser(id: number): Promise<string> {
     const user = await this.findById(id); // throws if not found
 
-    
+    // Prevent deleting the last Admin
+    if (user.role === 'Admin') {
+      const adminCount = await this.usersRepository.count({
+        where: { role: 'Admin' },
+      });
+      if (adminCount <= 1) {
+        throw new BadRequestException(
+          'Cannot delete the last administrator. The system must have at least one admin.',
+        );
+      }
+    }
+
     await this.usersRepository.remove(user);
     return `User ${user.username} (ID: ${id}) has been deleted successfully`;
   }
+
 
   // Clear all users (used for resetting the system)
   async clearAllData() {

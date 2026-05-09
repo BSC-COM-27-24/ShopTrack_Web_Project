@@ -10,7 +10,6 @@ import { Repository } from 'typeorm';
 import { Sale } from './entities/sale.entity';
 import { Product } from '../products/entities/product.entity';
 import { User } from '../users/entities/user.entity';
-import { ConfigService } from '@nestjs/config';
 import { PdfService } from '../pdf/pdf.service';
 import { EmailService } from '../email/email/email.service';
 
@@ -28,8 +27,7 @@ export class SalesService {
 
     private pdfService: PdfService,
     private emailService: EmailService,
-    private configService: ConfigService,
-  ) { }
+  ) {}
 
   async recordSale(user: User, productId: number, quantity: number) {
     const product = await this.productRepo.findOne({
@@ -102,6 +100,7 @@ export class SalesService {
       where: {
         soldBy: { id: user.id },
       },
+      relations: ['product', 'soldBy'],
     });
   }
 
@@ -113,8 +112,11 @@ export class SalesService {
       .addSelect('SUM(sale.totalCost)', 'totalCost')
       .getRawOne();
 
-    const totalRevenue = parseFloat(result.totalRevenue || 0);
-    const totalCost = parseFloat(result.totalCost || 0);
+    return {
+      totalSales: parseInt(result.totalSales || '0'),
+      totalRevenue: parseFloat(result.totalRevenue || '0'),
+    };
+  }
 
     return {
       totalSales: parseInt(result.totalSales || 0),
