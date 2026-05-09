@@ -45,9 +45,38 @@ export class UsersService {
     return await this.usersRepository.save(newUser);
   }
 
-  // GET all users
-  async findAll(): Promise<User[]> {
+  // GET all users — optionally filter by role
+  async findAll(role?: 'Admin' | 'Attendant'): Promise<User[]> {
+    if (role) {
+      return await this.usersRepository.find({ where: { role } });
+    }
     return await this.usersRepository.find();
+  }
+
+  // SAVE reset token (hashed) + expiry on user record
+  async saveResetToken(userId: number, hashedToken: string, expiry: Date): Promise<void> {
+    await this.usersRepository.update(userId, {
+      resetToken: hashedToken,
+      resetTokenExpiry: expiry,
+    });
+  }
+
+  // FIND user whose stored token matches (check done in service after fetch)
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.usersRepository.findOne({ where: { email } });
+  }
+
+  // CLEAR reset token after successful password reset
+  async clearResetToken(userId: number): Promise<void> {
+    await this.usersRepository.update(userId, {
+      resetToken: null,
+      resetTokenExpiry: null,
+    });
+  }
+
+  // UPDATE password directly (used after token validation)
+  async updatePassword(userId: number, hashedPassword: string): Promise<void> {
+    await this.usersRepository.update(userId, { password: hashedPassword });
   }
 
   // GET user by ID

@@ -50,7 +50,9 @@ export class SalesService {
       soldBy: user,
       quantity,
       unitPrice: product.price,
+      unitCost: product.unitCost,
       totalAmount: product.price * quantity,
+      totalCost: product.unitCost * quantity,
     });
 
     const savedSale = await this.saleRepo.save(sale);
@@ -68,13 +70,13 @@ export class SalesService {
     // Generate and send receipt to admin
     if (admins.length > 0) {
       const pdfBuffer = await this.pdfService.generateReceiptPdf(
-        savedSale.id, 
-        product.name, 
-        quantity, 
-        savedSale.totalAmount, 
+        savedSale.id,
+        product.name,
+        quantity,
+        savedSale.totalAmount,
         user.username
       );
-      
+
       for (const admin of admins) {
         await this.emailService.sendEmailWithAttachment(
           admin.email,
@@ -107,6 +109,7 @@ export class SalesService {
       .createQueryBuilder('sale')
       .select('COUNT(sale.id)', 'totalSales')
       .addSelect('SUM(sale.totalAmount)', 'totalRevenue')
+      .addSelect('SUM(sale.totalCost)', 'totalCost')
       .getRawOne();
 
     return {
@@ -115,15 +118,13 @@ export class SalesService {
     };
   }
 
-  async remove(id: number) {
-    const sale = await this.saleRepo.findOne({
-      where: { id },
-    });
-
-    if (!sale) {
-      throw new NotFoundException('Sale not found');
-    }
-
-    return this.saleRepo.delete(id);
+    return {
+      totalSales: parseInt(result.totalSales || 0),
+      totalRevenue,
+      totalCost,
+      netProfit: totalRevenue - totalCost,
+    };
   }
+
+
 }

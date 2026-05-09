@@ -13,9 +13,8 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('Admin')
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
-     // GET /api/v1/users - List all users
   @Get()
   @Roles('Admin')
   @ApiOperation({ summary: 'List all users (Admin only)' })
@@ -25,6 +24,7 @@ export class UsersController {
     const safeUsers = users.map(({ password, ...rest }) => rest);
     return {
       status: 'success',
+      count: safeUsers.length,
       data: safeUsers,
     };
   }
@@ -41,19 +41,17 @@ export class UsersController {
         };
     }
 
-   // POST /api/v1/users - Create a user (Admin or Attendant)
   @Post()
   @HttpCode(HttpStatus.CREATED)
    @Roles('Admin')
   @ApiOperation({ summary: 'Create a new user (Admin only)' })
   async create(@Body() createUserDto: CreateUserDto) {
-    
     const user = await this.usersService.createUser(
       createUserDto.name,
       createUserDto.username,
       createUserDto.password,
       createUserDto.email,
-      createUserDto.role, // can be 'Admin' or 'Attendant'
+      createUserDto.role,
     );
 
     const { password, ...userWithoutPassword } = user;
@@ -93,4 +91,15 @@ export class UsersController {
         };
     }
 
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete user account' })
+  @ApiResponse({ status: 200, description: 'User deleted.' })
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.usersService.deleteUser(id);
+    return {
+      status: 'success',
+      message: result
+    };
+  }
 }

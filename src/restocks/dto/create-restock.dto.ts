@@ -10,7 +10,8 @@ export class CreateRestockDto {
   @IsNotEmpty()
   @Type(() => Number)
   @IsInt()
-  productId!: number;
+  @Min(1)
+  productId: number;
 
   @ApiProperty({
     description: 'The quantity to add to the stock',
@@ -20,5 +21,10 @@ export class CreateRestockDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  quantity!: number;
+  quantity: number;
+
+  @ApiProperty({ description: 'Cost per unit for this restock batch', example: 12.50 })
+  @IsNumber()
+  @IsPositive()
+  unitCost: number;
 }

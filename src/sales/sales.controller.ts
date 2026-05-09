@@ -20,9 +20,9 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 @ApiTags('sales')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Controller('sales') 
+@Controller('sales')
 export class SalesController {
-  constructor(private readonly salesService: SalesService) {}
+  constructor(private readonly salesService: SalesService) { }
 
 
   @Post()
