@@ -44,8 +44,8 @@ export class ProductsController {
   @Roles('Admin')
   @ApiOperation({ summary: 'Create a new product' })
   @ApiResponse({ status: 201, description: 'The product has been successfully created.' })
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  create(@Req() req: any, @Body() createProductDto: CreateProductDto) {
+    return this.productsService.create(createProductDto, req.user);
   }
 
   @Patch(':id')

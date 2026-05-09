@@ -52,8 +52,9 @@ export class ProductsService {
     return product;
   }
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: any) {
     const product = this.productRepo.create(createProductDto);
+    product.updatedBy = user;
     return this.productRepo.save(product);
   }
 
@@ -70,15 +71,10 @@ export class ProductsService {
     return { message: `product ${id} deleted successfully` };
   }
 
-  async disable(id: number, user: any): Promise<void> {
-    const product = await this.productRepo.findOne({ where: { id } });
-
-    if (!product) {
-      throw new NotFoundException(`Product ${id} not found`);
-    }
-
+  async disable(id: number, user: any): Promise<Product> {
+    const product = await this.findOne(id);
     product.isActive = false;
     product.updatedBy = user;
-    await this.productRepo.save(product);
+    return await this.productRepo.save(product);
   }
 }

@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -78,28 +78,16 @@ export class UsersController {
         };
     }
 
-    // DELETE /api/v1/users/:id - Delete user
     @Delete(':id')
     @Roles('Admin')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Delete a user by ID' })
+    @ApiResponse({ status: 200, description: 'User deleted.' })
     async delete(@Param('id', ParseIntPipe) id: number) {
         const result = await this.usersService.deleteUser(id);
-      return {
-     status: 'success',
-        message: result  
+        return {
+            status: 'success',
+            message: result
         };
     }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete user account' })
-  @ApiResponse({ status: 200, description: 'User deleted.' })
-  async delete(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.usersService.deleteUser(id);
-    return {
-      status: 'success',
-      message: result
-    };
-  }
 }
