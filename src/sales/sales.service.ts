@@ -112,11 +112,8 @@ export class SalesService {
       .addSelect('SUM(sale.totalCost)', 'totalCost')
       .getRawOne();
 
-    return {
-      totalSales: parseInt(result.totalSales || '0'),
-      totalRevenue: parseFloat(result.totalRevenue || '0'),
-    };
-  }
+    const totalRevenue = parseFloat(result.totalRevenue || 0);
+    const totalCost = parseFloat(result.totalCost || 0);
 
     return {
       totalSales: parseInt(result.totalSales || 0),
@@ -125,6 +122,4 @@ export class SalesService {
       netProfit: totalRevenue - totalCost,
     };
   }
-
-
 }

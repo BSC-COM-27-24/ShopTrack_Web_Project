@@ -13,7 +13,7 @@ export class createAdminDto {
     @ApiProperty({ example: 'administrator_user_new', description: 'The unique username of the account' })
     @IsString()
     @IsNotEmpty({ message: 'Enter a username' })
-    @MinLength(8, { message: 'Username must be at least 15 characters long' })
+    @MinLength(8, { message: 'Username must be at least 8 characters long' })
     username: string;
 
     //EMAIL
