@@ -14,24 +14,19 @@ export class Sale {
   @PrimaryGeneratedColumn()
   id: number;
 
-  // ✅ No reverse relation reference here
   @ManyToOne(() => Product, { eager: true })
   product: Product;
 
-  // ✅ No reverse relation reference here
   @ManyToOne(() => User, { eager: true })
   soldBy: User;
 
   @Column()
   quantity: number;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('numeric', { precision: 10, scale: 2 })
   unitPrice: number;
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
-  unitCost: number;
-
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('numeric', { precision: 10, scale: 2 })
   totalAmount: number;
 
   @Column('decimal', { precision: 10, scale: 2, default: 0 })

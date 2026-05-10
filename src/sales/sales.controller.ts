@@ -2,52 +2,53 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Body,
-  UseGuards,
   Req,
+  Query,
+  Param,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { AuthGuard } from '@nestjs/passport';
+
 import { SalesService } from './sales.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 
-@ApiTags('sales')
-@ApiBearerAuth()
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('sales')
+@UseGuards(AuthGuard('jwt'))
 export class SalesController {
-  constructor(private readonly salesService: SalesService) { }
+  constructor(private readonly salesService: SalesService) {}
 
   @Post()
-  @Roles('Admin', 'Attendant')
-  @ApiOperation({ summary: 'Record a new sale' })
-  @ApiResponse({ status: 201, description: 'Sale recorded successfully.' })
   recordSale(
-    @Req() req: any,
-    @Body() createSaleDto: CreateSaleDto,
+    @Req() req,
+    @Body() body: { productId: number; quantity: number },
   ) {
-    return this.salesService.recordSale(
-      req.user,
-      createSaleDto.productId,
-      createSaleDto.quantity,
-    );
-  }
-
-  @Get()
-  @Roles('Admin', 'Attendant')
-  @ApiOperation({ summary: 'Retrieve all sales' })
-  @ApiResponse({ status: 200, description: 'Return all sales.' })
-  findAll(@Req() req: any) {
-    return this.salesService.findAll(req.user);
+    return this.salesService.recordSale(req.user, body.productId, body.quantity);
   }
 
   @Get('summary')
-  @Roles('Admin')
-  @ApiOperation({ summary: 'Get daily sales summary' })
-  @ApiResponse({ status: 200, description: 'Return sales summary.' })
   summary() {
     return this.salesService.summary();
+  }
+
+  @Get('receipt')
+  getReceipt(@Query('saleId') saleId: number, @Req() req) {
+    return this.salesService.getReceipt(saleId, req.user);
+  }
+
+  @Get()
+  findAll(@Req() req) {
+    return this.salesService.findAll(req.user);
+  }
+
+  @Post('daily-email')
+  sendDailyEmail(@Body() body: { adminEmail: string }) {
+    return this.salesService.sendDailySalesEmail(body.adminEmail);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: number) {
+    return this.salesService.remove(id);
   }
 }
