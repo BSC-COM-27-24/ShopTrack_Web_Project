@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Param, Patch, Delete, ParseIntPipe, HttpCode, HttpStatus, BadRequestException, UseGuards, Query } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserFilterDto } from './dto/user-filter.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -18,8 +19,10 @@ export class UsersController {
   @Get()
   @Roles('Admin')
   @ApiOperation({ summary: 'List all users (Admin only)' })
-  async findAll() {
-    const users = await this.usersService.findAll();
+  @ApiQuery({ name: 'search', required: false, description: 'Search by name, username or email' })
+  @ApiQuery({ name: 'role', required: false, enum: ['Admin', 'Attendant'] })
+  async findAll(@Query() filters: UserFilterDto) {
+    const users = await this.usersService.findAll(filters);
     // Remove passwords from all users before sending
     const safeUsers = users.map(({ password, ...rest }) => rest);
     return {
