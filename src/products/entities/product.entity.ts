@@ -1,20 +1,47 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { Restock } from '../../restocks/entities/restock.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('products')
 export class Product {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ length: 255 })
   name!: string;
 
   @Column('decimal')
   price!: number;
 
-  @Column()
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  unitCost!: number;
+
+  @Column('int')
   quantity!: number;
 
-  @OneToMany(() => Restock, restock => restock.product)
+  @Column({ length: 100, nullable: true })
+  category!: string;
+
+  @Column({ default: true })
+  isActive!: boolean;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+
+  @ManyToOne(() => User, { nullable: true })
+  updatedBy!: User;
+
+  @OneToMany(() => Restock, (restock) => restock.product)
   restocks!: Restock[];
 }
