@@ -26,6 +26,9 @@ export class Sale {
   @Column('numeric', { precision: 10, scale: 2 })
   unitPrice: number;
 
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  unitCost: number;
+
   @Column('numeric', { precision: 10, scale: 2 })
   totalAmount: number;
 

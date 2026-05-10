@@ -23,10 +23,10 @@ import { PdfModule } from './pdf/pdf.module';
         type: 'oracle',
         host: config.get('DB_HOST'),
         port: 1521,
-        username: config.get('DB_USER'),       // ← changed
-        password: config.get('DB_PASS'),       // ← changed
-        serviceName: config.get('DB_SERVICE'), // ← changed
-        synchronize: true,
+        username: config.get('DB_USERNAME'),
+        password: config.get('DB_PASSWORD'),
+        serviceName: config.get('DB_SERVICE_NAME'),
+        synchronize: config.get('DB_SYNCHRONIZE') === 'true',
         autoLoadEntities: true,
         logging: true,
       }),
@@ -42,4 +42,4 @@ import { PdfModule } from './pdf/pdf.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
