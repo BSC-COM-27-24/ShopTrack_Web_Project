@@ -27,7 +27,7 @@ export class SalesService {
 
     private pdfService: PdfService,
     private emailService: EmailService,
-  ) {}
+  ) { }
 
   async recordSale(user: User, productId: number, quantity: number) {
     const product = await this.productRepo.findOne({

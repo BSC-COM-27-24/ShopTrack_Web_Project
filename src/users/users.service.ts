@@ -11,7 +11,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   // CREATE user (admin or attendant)
   async createUser(
@@ -47,7 +47,7 @@ export class UsersService {
   }
 
   // GET all users — optionally filter by role and search term
-  async findAll(filters: UserFilterDto): Promise<User[]> {
+  async findAll(filters: UserFilterDto = {}): Promise<User[]> {
     const { role, search } = filters;
     const queryOptions: any = { where: {} };
 
@@ -161,7 +161,6 @@ export class UsersService {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    // Merge changes
     Object.assign(user, updateUserDto);
     const updatedUser = await this.usersRepository.save(user);
 
