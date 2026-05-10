@@ -29,6 +29,9 @@ export class Sale {
   @Column('numeric', { precision: 10, scale: 2 })
   totalAmount: number;
 
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  totalCost: number;
+
   @CreateDateColumn()
   createdAt: Date;
 }

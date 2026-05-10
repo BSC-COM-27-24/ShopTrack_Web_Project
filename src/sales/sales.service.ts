@@ -42,7 +42,9 @@ export class SalesService {
     const sale = this.saleRepo.create({
       product, soldBy: user, quantity,
       unitPrice: product.price,
+      unitCost: product.unitCost,
       totalAmount: product.price * quantity,
+      totalCost: product.unitCost * quantity,
     });
 
     const savedSale = await this.saleRepo.save(sale);
@@ -93,6 +95,7 @@ export class SalesService {
       .createQueryBuilder('sale')
       .select('COUNT(sale.id)', 'totalSales')
       .addSelect('SUM(sale.totalAmount)', 'totalRevenue')
+      .addSelect('SUM(sale.totalCost)', 'totalCost')
       .getRawOne();
     return {
       totalSales: Number(result.totalSales) || 0,

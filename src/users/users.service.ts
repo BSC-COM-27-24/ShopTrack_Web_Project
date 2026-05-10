@@ -1,16 +1,17 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserFilterDto } from './dto/user-filter.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   // CREATE user (admin or attendant)
   async createUser(
@@ -45,9 +46,61 @@ export class UsersService {
     return await this.usersRepository.save(newUser);
   }
 
-  // GET all users
-  async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+  // GET all users — optionally filter by role and search term
+  async findAll(filters: UserFilterDto = {}): Promise<User[]> {
+    const { role, search } = filters;
+    const queryOptions: any = { where: {} };
+
+    if (role) {
+      queryOptions.where.role = role;
+    }
+
+    if (search) {
+      const searchPattern = `%${search}%`;
+      const searchCriteria = [
+        { name: ILike(searchPattern) },
+        { username: ILike(searchPattern) },
+        { email: ILike(searchPattern) },
+      ];
+
+      if (role) {
+        // If role is also provided, we need to ensure each search criteria also matches the role
+        queryOptions.where = searchCriteria.map(criteria => ({
+          ...criteria,
+          role: role,
+        }));
+      } else {
+        queryOptions.where = searchCriteria;
+      }
+    }
+
+    return await this.usersRepository.find(queryOptions);
+  }
+
+  // SAVE reset token (hashed) + expiry on user record
+  async saveResetToken(userId: number, hashedToken: string, expiry: Date): Promise<void> {
+    await this.usersRepository.update(userId, {
+      resetToken: hashedToken,
+      resetTokenExpiry: expiry,
+    });
+  }
+
+  // FIND user whose stored token matches (check done in service after fetch)
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.usersRepository.findOne({ where: { email } });
+  }
+
+  // CLEAR reset token after successful password reset
+  async clearResetToken(userId: number): Promise<void> {
+    await this.usersRepository.update(userId, {
+      resetToken: null,
+      resetTokenExpiry: null,
+    });
+  }
+
+  // UPDATE password directly (used after token validation)
+  async updatePassword(userId: number, hashedPassword: string): Promise<void> {
+    await this.usersRepository.update(userId, { password: hashedPassword });
   }
 
   // GET user by ID
@@ -108,7 +161,6 @@ export class UsersService {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
-    // Merge changes
     Object.assign(user, updateUserDto);
     const updatedUser = await this.usersRepository.save(user);
 
@@ -121,10 +173,22 @@ export class UsersService {
   async deleteUser(id: number): Promise<string> {
     const user = await this.findById(id); // throws if not found
 
-    
+    // Prevent deleting the last Admin
+    if (user.role === 'Admin') {
+      const adminCount = await this.usersRepository.count({
+        where: { role: 'Admin' },
+      });
+      if (adminCount <= 1) {
+        throw new BadRequestException(
+          'Cannot delete the last administrator. The system must have at least one admin.',
+        );
+      }
+    }
+
     await this.usersRepository.remove(user);
     return `User ${user.username} (ID: ${id}) has been deleted successfully`;
   }
+
 
   // Clear all users (used for resetting the system)
   async clearAllData() {

@@ -12,6 +12,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 
 import { SalesService } from './sales.service';
+import { CreateSaleDto } from './dto/create-sale.dto';
 
 @Controller('sales')
 @UseGuards(AuthGuard('jwt'))
