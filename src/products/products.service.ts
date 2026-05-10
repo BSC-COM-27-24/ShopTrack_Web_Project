@@ -52,12 +52,11 @@ export class ProductsService {
     return product;
   }
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: any) {
     const product = this.productRepo.create(createProductDto);
+    product.updatedBy = user;
     return this.productRepo.save(product);
   }
-
-
 
   async update(id: number, updateProductDto: UpdateProductDto, user: any) {
     const product = await this.findOne(id);
@@ -66,50 +65,16 @@ export class ProductsService {
     return await this.productRepo.save(product);
   }
 
-  // DELETE — removes a product row from the database
   async removeOne(id: number): Promise<{ message: string }> {
     await this.findOne(id);
     await this.productRepo.delete(id);
     return { message: `product ${id} deleted successfully` };
   }
 
-  async disable(id: number, user: any): Promise<void> {
-    const product = await this.productRepo.findOne({ where: { id } });
-
-    if (!product) {
-      throw new NotFoundException(`Product ${id} not found`);
-    }
-
+  async disable(id: number, user: any): Promise<Product> {
+    const product = await this.findOne(id);
     product.isActive = false;
     product.updatedBy = user;
-    await this.productRepo.save(product);
+    return await this.productRepo.save(product);
   }
-
-
-
-
-  
-async update(id: number, updateProductDto: UpdateProductDto){
-await this.findOne(id);
-await this.productRepo.update(id, updateProductDto);
-return await this.findOne(id);
-}
-// DELETE — removes a product row from the database
-async removeOne(id: number): Promise<{ message: string }> {
-await this.findOne(id);
-await this.productRepo.delete(id);
-return { message: `product ${id} deleted successfully` };
-}
-
-async disable(id: number): Promise<void> {
-  const product = await this.productRepo.findOne({where: {id}});
-  
-  if (!product) {
-    throw new NotFoundException(`Product ${id} not found`);
-  }
-
-  product.isActive = false;
-  await this.productRepo.save(product);
-}
-
 }

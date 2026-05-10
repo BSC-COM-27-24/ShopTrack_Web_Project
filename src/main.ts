@@ -10,16 +10,6 @@ async function bootstrap() {
   app.enableCors();
   app.setGlobalPrefix('api/v1');
 
-  const config = new DocumentBuilder()
-    .setTitle('ShopTrack API')
-    .setDescription('The ShopTrack API description for managing products, sales, and users.')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

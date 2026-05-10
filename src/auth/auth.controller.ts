@@ -1,5 +1,5 @@
-import { Controller, Post, Get, Body, Delete } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Controller, Post, Body } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { loginDto } from './dtos/login.dto';
@@ -15,29 +15,29 @@ export class AuthController {
         private readonly usersService: UsersService,
     ) { }
 
-    //STATUS FUNCTION
-
-    @Get('status')
-    @ApiOperation({ summary: 'Check the system status' })
-    async status() {
-        return await this.authService.status();
-    }
-
-    //SETUP FUNCTION
     @Post('setup')
-    @ApiOperation({ summary: 'Initial administrator setup' })
+    @ApiOperation({ summary: 'Initial system setup' })
+    @ApiResponse({ status: 201, description: 'First admin created successfully.' })
     async setup(@Body() createAdminDto: createAdminDto) {
         return await this.authService.setup(createAdminDto);
     }
 
     @Post('login')
     @ApiOperation({ summary: 'User login' })
+    @ApiResponse({ status: 200, description: 'Login successful, returns JWT.' })
     async login(@Body() loginDto: loginDto) {
         return await this.authService.login(loginDto);
     }
 
-}
-
+    @Post('forgot-password')
+    @ApiOperation({
+        summary: 'Request a password reset token',
+        description: 'Generates a reset token and sends it to the user\'s email.',
+    })
+    @ApiResponse({ status: 200, description: 'Reset token generated.' })
+    async forgotPassword(@Body() dto: ForgotPasswordDto) {
+        return await this.authService.forgotPassword(dto.email);
+    }
 
     @Post('reset-password')
     @ApiOperation({
@@ -49,7 +49,3 @@ export class AuthController {
         return await this.authService.resetPassword(dto.token, dto.newPassword);
     }
 }
-
-
-
-

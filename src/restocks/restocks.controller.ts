@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { RestocksService } from './restocks.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -24,7 +24,7 @@ export class RestocksController {
   @Post()
   @Roles('Admin') // only Admin can create restocks
   @ApiOperation({ summary: 'Create a new restock record' })
-  create(@Body() createRestockDto: CreateRestockDto) {
-    return this.restocksService.create(createRestockDto.productId, createRestockDto.quantity);
+  create(@Req() req: any, @Body() createRestockDto: CreateRestockDto) {
+    return this.restocksService.create(req.user, createRestockDto);
   }
 }
