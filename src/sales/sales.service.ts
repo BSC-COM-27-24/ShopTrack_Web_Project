@@ -10,7 +10,6 @@ import { Repository } from 'typeorm';
 import { Sale } from './entities/sale.entity';
 import { Product } from '../products/entities/product.entity';
 import { User } from '../users/entities/user.entity';
-import { ConfigService } from '@nestjs/config';
 import { PdfService } from '../pdf/pdf.service';
 import { EmailService } from '../email/email/email.service';
 
@@ -28,8 +27,7 @@ export class SalesService {
 
     private pdfService: PdfService,
     private emailService: EmailService,
-    private configService: ConfigService,
-  ) {}
+  ) { }
 
   async recordSale(user: User, productId: number, quantity: number) {
     const product = await this.productRepo.findOne({
@@ -52,7 +50,9 @@ export class SalesService {
       soldBy: user,
       quantity,
       unitPrice: product.price,
+      unitCost: product.unitCost,
       totalAmount: product.price * quantity,
+      totalCost: product.unitCost * quantity,
     });
 
     const savedSale = await this.saleRepo.save(sale);
@@ -70,13 +70,13 @@ export class SalesService {
     // Generate and send receipt to admin
     if (admins.length > 0) {
       const pdfBuffer = await this.pdfService.generateReceiptPdf(
-        savedSale.id, 
-        product.name, 
-        quantity, 
-        savedSale.totalAmount, 
+        savedSale.id,
+        product.name,
+        quantity,
+        savedSale.totalAmount,
         user.username
       );
-      
+
       for (const admin of admins) {
         await this.emailService.sendEmailWithAttachment(
           admin.email,
@@ -100,6 +100,7 @@ export class SalesService {
       where: {
         soldBy: { id: user.id },
       },
+      relations: ['product', 'soldBy'],
     });
   }
 
@@ -108,20 +109,17 @@ export class SalesService {
       .createQueryBuilder('sale')
       .select('COUNT(sale.id)', 'totalSales')
       .addSelect('SUM(sale.totalAmount)', 'totalRevenue')
+      .addSelect('SUM(sale.totalCost)', 'totalCost')
       .getRawOne();
 
-    return result;
-  }
+    const totalRevenue = parseFloat(result.totalRevenue || 0);
+    const totalCost = parseFloat(result.totalCost || 0);
 
-  async remove(id: number) {
-    const sale = await this.saleRepo.findOne({
-      where: { id },
-    });
-
-    if (!sale) {
-      throw new NotFoundException('Sale not found');
-    }
-
-    return this.saleRepo.delete(id);
+    return {
+      totalSales: parseInt(result.totalSales || 0),
+      totalRevenue,
+      totalCost,
+      netProfit: totalRevenue - totalCost,
+    };
   }
 }

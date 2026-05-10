@@ -1,8 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Restock } from './entities/restock.entity';
 import { Product } from '../products/entities/product.entity';
+import { User } from '../users/entities/user.entity';
+import { CreateRestockDto } from './dto/create-restock.dto';
 
 @Injectable()
 export class RestocksService {
@@ -12,40 +14,45 @@ export class RestocksService {
 
     @InjectRepository(Product)
     private productRepo: Repository<Product>,
+
+    private dataSource: DataSource,
   ) {}
 
   // GET ALL RESTOCKS
   async findAll() {
     return this.restockRepo.find({
-      relations: ['product'],
+      relations: ['product', 'addedBy'],
       order: { createdAt: 'DESC' },
     });
   }
 
-  // CREATE RESTOCK
-  async create(productId: number, quantity: number) {
-    const product = await this.productRepo.findOne({
-      where: { id: productId },
+  // CREATE RESTOCK (Wrapped in transaction for safety)
+  async create(user: User, dto: CreateRestockDto) {
+    const { productId, quantity, unitCost } = dto;
+
+    return await this.dataSource.transaction(async (manager) => {
+      const product = await manager.findOne(Product, {
+        where: { id: productId },
+      });
+
+      if (!product) {
+        throw new BadRequestException('Product not found');
+      }
+
+      // 1. UPDATE PRODUCT STOCK and COST
+      product.quantity += quantity;
+      product.unitCost = unitCost; // Update current inventory cost
+      await manager.save(product);
+
+      // 2. SAVE RESTOCK RECORD with user and cost info
+      const restock = manager.create(Restock, {
+        productId,
+        quantity,
+        unitCost,
+        addedBy: user,
+      });
+
+      return await manager.save(restock);
     });
-
-    if (!product) {
-      throw new BadRequestException('Product not found');
-    }
-
-    if (quantity <= 0) {
-      throw new BadRequestException('Quantity must be greater than 0');
-    }
-
-    // UPDATE PRODUCT STOCK
-    product.quantity += quantity;
-    await this.productRepo.save(product);
-
-    // SAVE RESTOCK RECORD
-    const restock = this.restockRepo.create({
-      productId,
-      quantity,
-    });
-
-    return this.restockRepo.save(restock);
   }
 }

@@ -13,26 +13,27 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { RestocksModule } from './restocks/restocks.module';
 import { PdfModule } from './pdf/pdf.module';
+import { Restock } from './restocks/entities/restock.entity';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
 
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'oracle',
-        host: config.get('DB_HOST'),
-        port: parseInt(config.get('DB_PORT') || '1521'),
-        username: config.get('DB_USERNAME'),
-        password: config.get('DB_PASSWORD'),
-        serviceName: config.get('DB_SERVICE_NAME'),
-        synchronize: config.get('DB_SYNCHRONIZE') === 'true',
-        entities: [Product, User, Sale],
-        autoLoadEntities: true,
-        logging: true,
-      }),
+  imports: [
+ConfigModule.forRoot({ isGlobal: true }),
+TypeOrmModule.forRootAsync({
+imports: [ConfigModule],
+inject: [ConfigService],
+useFactory: (config: ConfigService) => ({
+type: 'oracle',
+host: config.get('DB_HOST'),
+port: 1521,
+username: config.get('DB_USERNAME'),
+password: config.get('DB_PASSWORD'),
+serviceName: config.get('DB_SERVICE_NAME'),
+synchronize: config.get('DB_SYNCHRONIZE') === 'true',
+entities: [Product, User, Sale, Restock],
+autoLoadEntities: true,
+logging: true,
+}),
     }),
     UsersModule,
     ProductsModule,
