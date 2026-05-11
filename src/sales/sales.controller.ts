@@ -11,9 +11,12 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { SalesService } from './sales.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 
+@ApiTags('sales')
+@ApiBearerAuth()
 @Controller('sales')
 @UseGuards(AuthGuard('jwt'))
 export class SalesController {
@@ -32,20 +35,14 @@ export class SalesController {
     return this.salesService.summary();
   }
 
-  @Get('receipt')
-  getReceipt(@Query('saleId') saleId: number, @Req() req) {
-    return this.salesService.getReceipt(saleId, req.user);
-  }
+
 
   @Get()
   findAll(@Req() req) {
     return this.salesService.findAll(req.user);
   }
 
-  @Post('daily-email')
-  sendDailyEmail(@Body() body: { adminEmail: string }) {
-    return this.salesService.sendDailySalesEmail(body.adminEmail);
-  }
+
 
   @Delete(':id')
   remove(@Param('id') id: number) {
